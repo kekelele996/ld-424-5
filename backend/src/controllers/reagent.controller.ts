@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ReagentService } from '../services/reagent.service';
 import { AuthenticatedRequest } from '../types/interfaces';
 import { ok } from '../utils/response';
@@ -13,6 +13,16 @@ export class ReagentController {
   @Get()
   async list() {
     return ok(await this.service.list());
+  }
+
+  @Get('batch-expiry')
+  @ApiOperation({
+    summary: '批次效期视图',
+    description: '按试剂列出各批号过期日期、入库数量、存放位置。快过期（含已过期）的批次排在前面。支持按单个试剂查询。',
+  })
+  @ApiQuery({ name: 'reagentId', required: false, description: '可选：指定单个试剂ID' })
+  async batchExpiryView(@Query('reagentId') reagentId?: string) {
+    return ok(await this.service.getBatchExpiryView(reagentId));
   }
 
   @Get(':id')
